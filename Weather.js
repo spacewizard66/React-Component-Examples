@@ -5,7 +5,9 @@ function Weather() {
 	// "useState()" React hook to setup important variables
 	const [unit, setUnit] = useState(null);
 	const [data, setData] = useState(null);
+	
 	const [location, setLocation] = useState("");
+    const [error, setError] = useState(null);
 
 	// Uses the "useEffect()" React hook to initialize
 	// the "unit" variable to be Fahrenheit (true)
@@ -14,7 +16,7 @@ function Weather() {
 	}, []);
 
 	const url = `http://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=4ebb9418ca605fa1931880e565ec065c`;
-
+    //const url = "http://11"
 	// Function to Fetch API data when a search input is Entered
 	const fetchAPI = async (event) => {
 		// Checks if the "Event" was the "Enter" key, then runs
@@ -22,12 +24,15 @@ function Weather() {
 			try {
 				const response = await fetch(url);
 				const results = await response.json();
+				
 				// Sets the Data variable to the APIs response in JSON format
 				setData(results);
 				console.log(results);
 				console.log("HEELLOOO TESTING");
-			} catch (error) {
-				setData(error);
+			} catch (err) {
+				//const err = throw new ()
+				setError(err);
+                console.log(err);
 			}
 		}
 	};
@@ -69,48 +74,60 @@ function Weather() {
 				</button>
 			</div>
 
-			<div className="temperature">
-				{!data ? (
-					<h1>Welcome to the Weather App</h1>
-				) : (
-					<h1 className="temp">{`${select(data.main.temp)}°${
-						unit ? "F" : "C"
-					}`}</h1>
-				)}
-			</div>
+            {data ? (
+                data.main ? (
+                    <div>
+                        <div className="temp-div">
+                                <h1 className="temp">{`${select(data.main.temp)}°${unit ? "F" : "C"}`}</h1>
+                        </div>
 
-			<div className="location-div">
-				{data ? (
-					<p className="location">{`${data.name}, ${data.sys.country}`}</p>
-				) : null}
-			</div>
+                        <div className="location-div">
+                                <p className="location">{`${data.name}, ${data.sys.country}`}</p>
+                        </div>
+                    
+                        <div className="main">
+                            <div className="description">
+                                <h2>{`${data.weather[0].description}`}</h2>
+                            </div>
 
-			{data ? (
-				data.main ? (
-					<div className="main">
-						<div className="description">
-							<h2>{`${data.weather[0].description}`}</h2>
-						</div>
+                            <div className="bottom">
+                                <div className="feels-like">
+                                    <h4>{`${select(data.main.feels_like)}°${unit ? "F" : "C"}`}</h4>
+                                    <p>Feels Like</p>
+                                </div>
+                                <div className="humidity">
+                                    <h4>{data.main.humidity}%</h4>
+                                    <p>Humidity</p>
+                                </div>
+                                <div className="wind-speed">
+                                    <h4>{Math.floor(data.wind.speed)} MPH</h4>
+                                    <p>Wind Speed</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div>
+                        <div className="temp-div">
+                            <h1 className="temp">404</h1>
+                        </div>
 
-						<div className="bottom">
-							<div className="feels-like">
-								<h4>{`${select(data.main.feels_like)}°${
-									unit ? "F" : "C"
-								}`}</h4>
-								<p>Feels Like</p>
-							</div>
-							<div className="humidity">
-								<h4>{data.main.humidity}%</h4>
-								<p>Humidity</p>
-							</div>
-							<div className="wind-speed">
-								<h4>{Math.floor(data.wind.speed)} MPH</h4>
-								<p>Wind Speed</p>
-							</div>
-						</div>
-					</div>
-				) : null
-			) : null}
+                        <div className="location-div">
+                            <p className="location">{'Sorry, city not found   :('}</p>
+                        </div>
+                    </div>
+                )
+			) : (
+                ! error ? (
+                    <div className="temp-div">
+                        <h1 className="temp">Welcome to the Weather App</h1>
+                    </div>
+                ) : (
+                    <div>
+                        <h1>Uh oh, there seems to have been a problem :/</h1>
+                    </div>
+                )
+            )}
 		</div>
 	);
 }
