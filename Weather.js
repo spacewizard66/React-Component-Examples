@@ -1,13 +1,14 @@
 import React from "react";
 import { useState, useEffect } from "react";
+/* import Main from "./Main"; */
 
 function Weather() {
 	// "useState()" React hook to setup important variables
-	const [unit, setUnit] = useState(null);
+	const [unit, setUnit] = useState(true);
 	const [data, setData] = useState(null);
-	
+
 	const [location, setLocation] = useState("");
-    const [error, setError] = useState(null);
+    const [error, setError] = useState();
 
 	// Uses the "useEffect()" React hook to initialize
 	// the "unit" variable to be Fahrenheit (true)
@@ -16,7 +17,7 @@ function Weather() {
 	}, []);
 
 	const url = `http://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=4ebb9418ca605fa1931880e565ec065c`;
-    //const url = "http://11"
+
 	// Function to Fetch API data when a search input is Entered
 	const fetchAPI = async (event) => {
 		// Checks if the "Event" was the "Enter" key, then runs
@@ -24,15 +25,10 @@ function Weather() {
 			try {
 				const response = await fetch(url);
 				const results = await response.json();
-				
 				// Sets the Data variable to the APIs response in JSON format
 				setData(results);
-				console.log(results);
-				console.log("HEELLOOO TESTING");
 			} catch (err) {
-				//const err = throw new ()
 				setError(err);
-                console.log(err);
 			}
 		}
 	};
@@ -40,7 +36,6 @@ function Weather() {
 	// Function to FLIP temperature "unit" to its opposite
 	const flip = (unit) => {
 		unit ? setUnit(!unit) : setUnit(true);
-		console.log(unit);
 		return unit;
 	};
 
@@ -63,55 +58,56 @@ function Weather() {
 					value={location}
 					onChange={(event) => setLocation(event.target.value)}
 					onKeyPress={fetchAPI}
-					placeholder="Enter Location"
+					placeholder="Please Enter a Location Name"
 					type="text"
 				/>
-				<button
+				{data ? (
+					<button
 					className="unit-button"
 					type="button"
 					onClick={() => flip(unit)}>
 					    {unit ? "°C" : "°F"}
-				</button>
+					</button>
+				) : (
+					null
+				)}
+				
 			</div>
 
             {data ? (
                 data.main ? (
-                    <div>
-                        <div className="temp-div">
-                                <h1 className="temp">{`${select(data.main.temp)}°${unit ? "F" : "C"}`}</h1>
-                        </div>
+					<div className="main">
+						<div className="location-div" style={{animation: "slide-in 1200ms linear 0ms both;"}}>
+							<p className="location">{`${data.name}, ${data.sys.country}`}</p>
+						</div>
 
-                        <div className="location-div">
-                                <p className="location">{`${data.name}, ${data.sys.country}`}</p>
-                        </div>
-                    
-                        <div className="main">
-                            <div className="description">
-                                <h2>{`${data.weather[0].description}`}</h2>
-                            </div>
+						<div className="temp-div">
+							<h1 className="temp">{`${select(data.main.temp)}°${unit ? "F" : "C"}`}</h1>
+						</div>
 
-                            <div className="bottom">
-                                <div className="feels-like">
-                                    <h4>{`${select(data.main.feels_like)}°${unit ? "F" : "C"}`}</h4>
-                                    <p>Feels Like</p>
-                                </div>
-                                <div className="humidity">
-                                    <h4>{data.main.humidity}%</h4>
-                                    <p>Humidity</p>
-                                </div>
-                                <div className="wind-speed">
-                                    <h4>{Math.floor(data.wind.speed)} MPH</h4>
-                                    <p>Wind Speed</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+						<div className="bottom">
+							<div className="description">
+								<p>{`${data.weather[0].description}`}</p>
+							</div>
+
+							<div className="extra">
+								<div className="feels-like">
+									<p>{`${select(data.main.feels_like)}°${unit ? "F" : "C"}`}</p>
+									<p>Feels Like</p>
+								</div>
+								<div className="humidity">
+									<p>{data.main.humidity}%</p>
+									<p>Humidity</p>
+								</div>
+								<div className="wind-speed">
+									<p>{Math.floor(data.wind.speed)} MPH</p>
+									<p>Wind Speed</p>
+								</div>
+							</div>
+						</div>
+					</div>
                 ) : (
                     <div>
-                        <div className="temp-div">
-                            <h1 className="temp">404</h1>
-                        </div>
-
                         <div className="location-div">
                             <p className="location">{'Sorry, city not found   :('}</p>
                         </div>
@@ -120,7 +116,7 @@ function Weather() {
 			) : (
                 ! error ? (
                     <div className="temp-div">
-                        <h1 className="temp">Welcome to the Weather App</h1>
+                        <h1 className="temp">Weather Forecast</h1>
                     </div>
                 ) : (
                     <div>
